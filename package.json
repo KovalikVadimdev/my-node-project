@@ -1,0 +1,21 @@
+{
+  "name": "my-node-project",
+  "version": "1.0.0",
+  "description": "A sample Node.js project",
+  "license": "MIT",
+  "author": "Vadym Kovalyk",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "static": "serve -p 5050 static",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "fastify": "^5.2.1",
+    "fastify-cli": "^7.3.0",
+    "serve": "^14.2.4"
+  },
+  "devDependencies": {
+    "prettier": "3.4.2"
+  }
+}
