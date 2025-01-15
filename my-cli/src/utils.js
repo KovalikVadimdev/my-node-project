@@ -1,18 +1,43 @@
 import { got } from "got";
+import {
+  log,
+  error,
+  displayAmount,
+  displayCategory,
+  displayID,
+  displayInfo,
+  displayKey,
+  displayName,
+  displayRRP,
+  displaySuccess,
+  displayText,
+  displayTimestamp,
+} from "./displays.js";
+
 const API = "http://localhost:3000";
-const categories = ["confectionery", "electronics"];
+
+export const categories = ["confectionery", "electronics"];
 
 export async function update(id, amount) {
-  console.log(`Updating order ${id} with amount ${amount}`);
+  log(`${displayTimestamp()}`);
+  log(
+    `${displayInfo(`Updating Order`)} ${displayID(id)} ${displayText(
+      "with amount"
+    )} ${displayAmount(amount)}`
+  );
   try {
     if (isNaN(+amount)) {
-      log("Error: <AMOUNT> must be a number");
+      error(" must be a number");
       process.exit(1);
     }
     await got.post(`${API}/orders/${id}`, {
       json: { amount: +amount },
     });
-    console.log(`Order ${id} updated with amount ${amount}`);
+    log(
+      `${displaySuccess()} ${displayText("Order")} ${displayID(
+        id
+      )} ${displayText("updated with amount")} ${displayAmount(amount)}`
+    );
   } catch (err) {
     console.log(err.message);
     process.exit(1);
@@ -21,13 +46,22 @@ export async function update(id, amount) {
 
 export async function add(...args) {
   let [category, id, name, amount, info] = args;
-  log(`Adding item ${id} with amount ${amount}`);
+  log(`${displayTimestamp()}`);
+  log(
+    `${displayInfo(`Request to add item to category`)} ${displayCategory(
+      category
+    )}`
+  );
+  log(
+    `${displayText("Adding item")} ${displayID(id)} ${displayText(
+      "with amount"
+    )} ${displayAmount(`$${amount}`)}`
+  );
   try {
     if (isNaN(+amount)) {
-      error("Error: <AMOUNT> must be a number");
+      error(`<AMOUNT> must be a number`);
       process.exit(1);
     }
-
     await got.post(`${API}/${category}`, {
       json: {
         id,
@@ -36,17 +70,25 @@ export async function add(...args) {
         info: info.join(" "),
       },
     });
-    log(`Item "${id}:${name}" has been added to the ${category} category`);
+    log(
+      `${displaySuccess("Product Added! :")} ${displayID(id)} ${displayText("-")} ${displayName(
+        name
+      )} ${displayText("has been added to the")} ${displayCategory(
+        category
+      )} ${displayText("category")}`
+    );
   } catch (err) {
     error(err.message);
     process.exit(1);
   }
 }
 
-export async function listCategories() {
-  log("Listing categories");
+export function listCategories() {
+  log(displayTimestamp());
+  log(displayInfo("Listing Categories"));
   try {
-    for (const cat of categories) log(cat);
+    log(displayText("Categories received from API:"));
+    for (const cat of categories) log(displayCategory(cat));
   } catch (err) {
     error(err.message);
     process.exit(1);
@@ -54,12 +96,14 @@ export async function listCategories() {
 }
 
 export async function listCategoryItems(category) {
-  log(`Listing IDs for category ${category}`);
+  log(displayTimestamp());
+  log(`${displayInfo(`List IDs`)}`);
   try {
     const result = await got(`${API}/${category}/`).json();
+    log(`${displaySuccess("IDs received from API:")}`);
     for (const item of result) {
       log(
-        `${item.id}: ${item.name} - $${item.rrp}\nProduct Info:\t${item.info}`
+        `${displayKey("ID:")}\t ${displayID(item.id)} ${displayKey(`Name:`)}\t ${displayName(item.name)} ${displayKey("RRP:")}\t ${displayRRP(item.rrp)} ${displayKey("Product Info:")}\n\t ${displayText(item.info)}`
       );
     }
   } catch (err) {
@@ -67,11 +111,3 @@ export async function listCategoryItems(category) {
     process.exit(1);
   }
 }
-
-export const log = (msg) => {
-  console.log(`\n${msg}\n`);
-};
-
-export const error = (msg) => {
-  console.error(`\n${msg}\n`);
-};
